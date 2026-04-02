@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Word Card Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 16px; }
+  .ui { background: #fff; border-radius: 10px; padding: 20px; max-width: 720px; margin: 0 auto 24px; }
+  textarea { width: 100%; height: 130px; font-size: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .row label { font-size: 13px; color: #555; display: flex; align-items: center; gap: 6px; }
+  .row select { font-size: 14px; padding: 5px 8px; border: 1px solid #ddd; border-radius: 5px; }
+  .row input[type=number] { font-size: 14px; padding: 5px 8px; border: 1px solid #ddd; border-radius: 5px; width: 64px; }
+  button { background: #111; color: #fff; border: none; border-radius: 6px; padding: 9px 22px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  button:hover { background: #333; }
+
+  /* Screen: show cards as a grid, no fixed height so it can grow */
+  #page {
+    display: none;
+    width: 210mm;
+    background: #fff;
+    margin: 0 auto;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px dashed #aaa;
+    font-weight: 500;
+    color: #111;
+    padding: 6px;
+    word-break: break-word;
+    overflow: hidden;
+  }
+
+  @media print {
+    body { background: none; padding: 0; }
+    .ui { display: none; }
+    #page {
+      display: grid !important;
+      width: 100%;
+      margin: 0;
+    }
+    /* Each card fills its fixed height; browser naturally page-breaks between rows */
+    .card {
+      break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="ui">
+  <h1>Word Card Generator</h1>
+  <textarea id="words" placeholder="One word or phrase per line:&#10;apple&#10;banana&#10;mango&#10;kiwi"></textarea>
+  <div class="row">
+    <label>Columns
+      <select id="cols">
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </label>
+    <label>Rows per page
+      <select id="rows">
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+      </select>
+    </label>
+    <label>Font size
+      <input type="number" id="fs" value="20" min="8" max="72">
+    </label>
+    <button onclick="buildCards()">Generate &amp; Print</button>
+  </div>
+</div>
+
+<div id="page"></div>
+
+<script>
+function buildCards() {
+  var words = document.getElementById('words').value.split('\n').map(function(w){ return w.trim(); }).filter(Boolean);
+  var cols = parseInt(document.getElementById('cols').value, 10);
+  var rows = parseInt(document.getElementById('rows').value, 10);
+  var fs = parseInt(document.getElementById('fs').value, 10);
+
+  // Card height in mm based on rows per page
+  var cardH = (297 / rows).toFixed(3);
+
+  var page = document.getElementById('page');
+  page.innerHTML = '';
+  page.style.display = 'grid';
+  page.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+  // No fixed gridTemplateRows — rows grow naturally for multiple pages
+
+  // Pad words to a multiple of cols so each row is complete
+  var padded = words.slice();
+  while (padded.length % cols !== 0) padded.push('');
+
+  for (var i = 0; i < padded.length; i++) {
+    var d = document.createElement('div');
+    d.className = 'card';
+    d.style.fontSize = fs + 'px';
+    d.style.height = cardH + 'mm';
+    d.textContent = padded[i];
+    page.appendChild(d);
+  }
+
+  setTimeout(function(){ window.print(); }, 300);
+}
+</script>
+</body>
+</html>
