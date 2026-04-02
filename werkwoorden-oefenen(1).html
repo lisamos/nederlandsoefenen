@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Werkwoorden oefenen</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      background: #f5f5f3;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .wrap { max-width: 580px; margin: 0 auto; }
+
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 1.5rem; color: #1a1a1a; }
+
+    .section-label {
+      font-size: 11px; font-weight: 600; color: #888;
+      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .section-block { margin-bottom: 1.25rem; }
+
+    .stats { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+    .stat {
+      flex: 1; background: #fff; border: 1px solid #e5e5e3;
+      border-radius: 8px; padding: 0.6rem 1rem; text-align: center;
+    }
+    .stat-num { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+    .stat-lbl { font-size: 12px; color: #888; }
+
+    .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill {
+      padding: 4px 14px; border-radius: 99px; border: 1px solid #ccc;
+      font-size: 13px; cursor: pointer; background: #fff; color: #555;
+      transition: all 0.15s; user-select: none;
+    }
+    .pill.active { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+
+    .collapsible-header {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none; margin-bottom: 6px;
+    }
+    .toggle-arrow { font-size: 12px; color: #aaa; transition: transform 0.2s; display: inline-block; }
+    .toggle-arrow.open { transform: rotate(180deg); }
+    .collapsible-body { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s; max-height: 0; opacity: 0; }
+    .collapsible-body.open { max-height: 600px; opacity: 1; }
+
+    .select-all-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .verb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
+    .verb-pill {
+      padding: 5px 10px; border-radius: 6px; border: 1px solid #ccc;
+      font-size: 13px; cursor: pointer; background: #fff; color: #555;
+      text-align: center; transition: all 0.15s; user-select: none;
+    }
+    .verb-pill.active { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+
+    button {
+      padding: 7px 16px; border-radius: 6px; border: 1px solid #ccc;
+      background: #fff; color: #333; font-size: 14px; cursor: pointer; transition: background 0.1s;
+    }
+    button:hover { background: #f0f0ee; }
+    button:active { background: #e5e5e3; }
+    button.primary { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+    button.primary:hover { background: #1e40af; }
+
+    .link-section { margin-bottom: 1rem; }
+    .link-box { display: flex; gap: 8px; margin-top: 8px; }
+    .link-box input {
+      flex: 1; font-size: 12px; color: #555; background: #f5f5f3;
+      border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px;
+    }
+    .copy-confirm { font-size: 12px; color: #16a34a; margin-top: 4px; display: none; }
+
+    .round-notice {
+      font-size: 13px; color: #555; background: #f0f0ee;
+      border-radius: 6px; padding: 0.5rem 0.85rem; margin-bottom: 1rem;
+    }
+
+    .card {
+      background: #fff; border: 1px solid #e5e5e3;
+      border-radius: 12px; padding: 1.75rem; margin-bottom: 1rem;
+    }
+    .prompt { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 0.2rem; }
+    .prompt-sub { font-size: 13px; color: #888; margin-bottom: 1.2rem; }
+    .answer-row { display: flex; gap: 8px; }
+    .answer-row input {
+      flex: 1; padding: 7px 12px; border: 1px solid #ccc;
+      border-radius: 6px; font-size: 15px; outline: none; transition: border-color 0.15s;
+    }
+    .answer-row input:focus { border-color: #93c5fd; }
+    .answer-row input.correct { border-color: #16a34a; }
+    .answer-row input.wrong { border-color: #dc2626; }
+
+    .feedback {
+      font-size: 14px; margin-top: 0.85rem; padding: 0.65rem 1rem;
+      border-radius: 6px; display: none;
+    }
+    .feedback.goed { background: #dcfce7; color: #166534; display: block; }
+    .feedback.fout { background: #fee2e2; color: #991b1b; display: block; }
+    .alt-note { font-size: 13px; color: #aaa; margin-top: 6px; }
+
+    .empty-notice { font-size: 14px; color: #888; padding: 0.25rem 0 0.5rem; }
+
+    .end-screen { text-align: center; padding: 0.5rem 0; }
+    .end-screen h2 { font-size: 20px; font-weight: 600; margin-bottom: 0.4rem; }
+    .end-screen p { font-size: 14px; color: #555; margin-bottom: 1.25rem; }
+    .end-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Werkwoorden oefenen</h1>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="s-goed">0</div><div class="stat-lbl">goed</div></div>
+    <div class="stat"><div class="stat-num" id="s-fout">0</div><div class="stat-lbl">fout</div></div>
+    <div class="stat"><div class="stat-num" id="s-reeks">0</div><div class="stat-lbl">reeks</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-label">Tijden</div>
+    <div class="pill-group" id="tense-pills"></div>
+  </div>
+
+  <div class="section-block">
+    <div class="collapsible-header" onclick="toggleVerbs()">
+      <div class="section-label" style="margin-bottom:0">
+        Werkwoorden <span id="verb-count" style="color:#aaa;font-weight:400"></span>
+      </div>
+      <span class="toggle-arrow open" id="toggle-arrow">&#9650;</span>
+    </div>
+    <div class="collapsible-body open" id="verb-collapsible">
+      <div class="select-all-row">
+        <button onclick="selectAll()">Alles selecteren</button>
+        <button onclick="selectNone()">Alles deselecteren</button>
+      </div>
+      <div class="verb-grid" id="verb-grid"></div>
+    </div>
+  </div>
+
+  <div class="link-section">
+    <button onclick="generateLink()" style="width:100%">&#128279; Genereer deellink</button>
+    <div class="link-box" id="link-box" style="display:none">
+      <input type="text" id="link-out" readonly onclick="this.select()" />
+      <button onclick="copyLink()">Kopieer</button>
+    </div>
+    <div class="copy-confirm" id="copy-confirm">Link gekopieerd!</div>
+  </div>
+
+  <div id="round-notice" class="round-notice" style="display:none"></div>
+
+  <div class="card">
+    <div id="empty-notice" class="empty-notice">Selecteer eerst een of meer werkwoorden om te beginnen.</div>
+
+    <div id="question-body" style="display:none">
+      <div class="prompt" id="prompt-text"></div>
+      <div class="prompt-sub" id="prompt-sub"></div>
+      <div class="answer-row">
+        <input type="text" id="antwoord" placeholder="jouw antwoord…" autocomplete="off" autocorrect="off" spellcheck="false" />
+        <button onclick="checkAnswer()">Controleer</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="alt-note" id="alt-note"></div>
+    </div>
+
+    <div id="end-screen" class="end-screen" style="display:none">
+      <h2 id="end-title"></h2>
+      <p id="end-body"></p>
+      <div class="end-buttons" id="end-buttons"></div>
+    </div>
+  </div>
+
+  <button style="width:100%" id="next-btn" onclick="nextQuestion()">Volgende →</button>
+</div>
+
+<script>
+const TIJDEN = { ott: 'Tegenwoordige tijd' };
+
+// Indices: 0=ik, 1=jij, 2=hij/zij/het, 3=wij, 4=jullie, 5=zij(mv), 6=u
+const pronLabels = [
+  { pron: 'ik',              sub: '' },
+  { pron: 'jij',             sub: '' },
+  { pron: 'hij / zij / het', sub: '(enkelvoud)' },
+  { pron: 'wij',             sub: '' },
+  { pron: 'jullie',          sub: '' },
+  { pron: 'zij',             sub: '(meervoud)' },
+  { pron: 'u',               sub: '(beleefdheidsvorm)' },
+];
+
+// 7 forms per verb: ik, jij, hij/zij/het, wij, jullie, zij(mv), u
+const werkwoorden = {
+  zijn:      { ott: ['ben','bent','is','zijn','zijn','zijn','bent'] },
+  hebben:    { ott: ['heb','hebt','heeft','hebben','hebben','hebben','heeft'] },
+  kunnen:    { ott: ['kan','kunt','kan','kunnen','kunnen','kunnen','kunt'] },
+  mogen:     { ott: ['mag','mag','mag','mogen','mogen','mogen','mag'] },
+  moeten:    { ott: ['moet','moet','moet','moeten','moeten','moeten','moet'] },
+  willen:    { ott: ['wil','wilt','wil','willen','willen','willen','wilt'] },
+  gaan:      { ott: ['ga','gaat','gaat','gaan','gaan','gaan','gaat'] },
+  komen:     { ott: ['kom','komt','komt','komen','komen','komen','komt'] },
+  werken:    { ott: ['werk','werkt','werkt','werken','werken','werken','werkt'] },
+  lopen:     { ott: ['loop','loopt','loopt','lopen','lopen','lopen','loopt'] },
+  rennen:    { ott: ['ren','rent','rent','rennen','rennen','rennen','rent'] },
+  schrijven: { ott: ['schrijf','schrijft','schrijft','schrijven','schrijven','schrijven','schrijft'] },
+  lezen:     { ott: ['lees','leest','leest','lezen','lezen','lezen','leest'] },
+  leren:     { ott: ['leer','leert','leert','leren','leren','leren','leert'] },
+  reizen:    { ott: ['reis','reist','reist','reizen','reizen','reizen','reist'] },
+  wassen:    { ott: ['was','wast','wast','wassen','wassen','wassen','wast'] },
+  drinken:   { ott: ['drink','drinkt','drinkt','drinken','drinken','drinken','drinkt'] },
+  eten:      { ott: ['eet','eet','eet','eten','eten','eten','eet'] },
+  wonen:     { ott: ['woon','woont','woont','wonen','wonen','wonen','woont'] },
+  spreken:   { ott: ['spreek','spreekt','spreekt','spreken','spreken','spreken','spreekt'] },
+};
+
+// For each verb+pronoun with two accepted forms:
+// - primary: the canonical/preferred form (shown as correct answer)
+// - alt: the equally valid alternative
+// - note_for_primary: shown when user typed the primary form ("ook: ...")
+// - note_for_alt: shown when user typed the alt form ("ook: ...")
+const altVariants = {
+  hebben: {
+    1: { primary: 'hebt', alt: 'heb',  note_for_primary: 'ook: jij heb',  note_for_alt: 'ook: jij hebt' }
+  },
+  kunnen: {
+    1: { primary: 'kunt', alt: 'kan',  note_for_primary: 'ook: jij kan',  note_for_alt: 'ook: jij kunt' },
+	6: { primary: 'kunt', alt: 'kan',  note_for_primary: 'ook: u kan',  note_for_alt: 'ook: u kunt' }
+  },
+  willen: {
+    1: { primary: 'wilt', alt: 'wil',  note_for_primary: 'ook: jij wil',  note_for_alt: 'ook: jij wilt' }
+  },
+};
+
+let selectedVerbs = new Set();
+let selectedTenses = new Set(['ott']);
+let current = null, answered = false;
+let goed = 0, fout = 0, reeks = 0;
+let verbsOpen = true;
+let queue = [], mistakeQueue = [], inMistakeRound = false;
+let roundFaults = 0, showingEnd = false;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildQueue() {
+  const items = [];
+  for (const v of selectedVerbs)
+    for (const t of selectedTenses)
+      for (let p = 0; p < 7; p++)
+        items.push({ verbKey: v, tense: t, pronIdx: p });
+  return shuffle(items);
+}
+
+function resetQueues() {
+  queue = buildQueue();
+  mistakeQueue = [];
+  inMistakeRound = false;
+  roundFaults = 0;
+  showingEnd = false;
+}
+
+function updateRoundNotice() {
+  const el = document.getElementById('round-notice');
+  if (selectedVerbs.size === 0 || showingEnd) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  if (inMistakeRound) {
+    const remaining = mistakeQueue.length + (current ? 1 : 0);
+    el.textContent = `Herhaling van fouten — ${remaining} over`;
+  } else {
+    const total = selectedVerbs.size * selectedTenses.size * 7;
+    const done = total - queue.length - (current ? 1 : 0);
+    el.textContent = `Ronde — ${done} / ${total}`;
+  }
+}
+
+function showEndScreen() {
+  showingEnd = true;
+  current = null;
+  document.getElementById('round-notice').style.display = 'none';
+  document.getElementById('question-body').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+
+  const title = document.getElementById('end-title');
+  const body  = document.getElementById('end-body');
+  const buttons = document.getElementById('end-buttons');
+
+  if (inMistakeRound) {
+    title.textContent = 'Herhaalronde klaar!';
+    body.textContent = roundFaults === 0
+      ? 'Alle fouten goed hersteld. Wil je nog een volledige ronde doen?'
+      : `Je had nog ${roundFaults} fout${roundFaults === 1 ? '' : 'en'} in de herhaalronde. Wil je nog een ronde doen?`;
+    buttons.innerHTML = '<button class="primary" onclick="continueRound()">Nog een ronde</button>';
+  } else {
+    title.textContent = 'Ronde klaar!';
+    if (roundFaults === 0) {
+      body.textContent = 'Geen fouten gemaakt — goed gedaan! Wil je nog een ronde doen?';
+      buttons.innerHTML = '<button class="primary" onclick="continueRound()">Nog een ronde</button>';
+    } else {
+      body.textContent = `Je had ${roundFaults} fout${roundFaults === 1 ? '' : 'en'}. Eerst de fouten herhalen, of meteen een nieuwe ronde?`;
+      buttons.innerHTML = mistakeQueue.length > 0
+        ? '<button class="primary" onclick="startMistakeRound()">Fouten herhalen</button><button onclick="continueRound()">Nieuwe ronde</button>'
+        : '<button class="primary" onclick="continueRound()">Nog een ronde</button>';
+    }
+  }
+  document.getElementById('end-screen').style.display = 'block';
+}
+
+function startMistakeRound() {
+  inMistakeRound = true;
+  shuffle(mistakeQueue);
+  roundFaults = 0;
+  showingEnd = false;
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'block';
+  updateRoundNotice();
+  nextQuestion();
+}
+
+function continueRound() {
+  inMistakeRound = false;
+  queue = buildQueue();
+  mistakeQueue = [];
+  roundFaults = 0;
+  showingEnd = false;
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'block';
+  updateRoundNotice();
+  nextQuestion();
+}
+
+function readParams() {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    if (p.has('w')) {
+      const ww = p.get('w').split(',').filter(k => werkwoorden[k]);
+      if (ww.length) selectedVerbs = new Set(ww);
+    }
+    if (p.has('t')) {
+      const tt = p.get('t').split(',').filter(k => TIJDEN[k]);
+      if (tt.length) selectedTenses = new Set(tt);
+    }
+  } catch(e) {}
+}
+
+function updateVerbCount() {
+  const n = selectedVerbs.size;
+  document.getElementById('verb-count').textContent =
+    n > 0 ? `(${n} geselecteerd)` : '(geen geselecteerd)';
+}
+
+function toggleVerbs() {
+  verbsOpen = !verbsOpen;
+  document.getElementById('verb-collapsible').classList.toggle('open', verbsOpen);
+  document.getElementById('toggle-arrow').classList.toggle('open', verbsOpen);
+}
+
+function buildUI() {
+  const tp = document.getElementById('tense-pills');
+  Object.entries(TIJDEN).forEach(([k, label]) => {
+    const el = document.createElement('div');
+    el.className = 'pill' + (selectedTenses.has(k) ? ' active' : '');
+    el.textContent = label;
+    el.onclick = () => {
+      if (selectedTenses.has(k) && selectedTenses.size === 1) return;
+      selectedTenses.has(k) ? selectedTenses.delete(k) : selectedTenses.add(k);
+      el.classList.toggle('active');
+      resetQueues(); nextQuestion();
+    };
+    tp.appendChild(el);
+  });
+
+  const vg = document.getElementById('verb-grid');
+  Object.keys(werkwoorden).forEach(k => {
+    const el = document.createElement('div');
+    el.className = 'verb-pill' + (selectedVerbs.has(k) ? ' active' : '');
+    el.textContent = k; el.dataset.key = k;
+    el.onclick = () => {
+      selectedVerbs.has(k) ? selectedVerbs.delete(k) : selectedVerbs.add(k);
+      el.classList.toggle('active');
+      updateVerbCount(); resetQueues(); nextQuestion();
+    };
+    vg.appendChild(el);
+  });
+  updateVerbCount();
+}
+
+function selectAll() {
+  Object.keys(werkwoorden).forEach(k => selectedVerbs.add(k));
+  document.querySelectorAll('.verb-pill').forEach(el => el.classList.add('active'));
+  updateVerbCount(); resetQueues(); nextQuestion();
+}
+
+function selectNone() {
+  selectedVerbs = new Set();
+  document.querySelectorAll('.verb-pill').forEach(el => el.classList.remove('active'));
+  updateVerbCount(); resetQueues(); nextQuestion();
+}
+
+function generateLink() {
+  const base = window.location.href.split('?')[0];
+  const url = `${base}?w=${encodeURIComponent([...selectedVerbs].join(','))}&t=${encodeURIComponent([...selectedTenses].join(','))}`;
+  document.getElementById('link-out').value = url;
+  document.getElementById('link-box').style.display = 'flex';
+  document.getElementById('copy-confirm').style.display = 'none';
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(document.getElementById('link-out').value).then(() => {
+    const c = document.getElementById('copy-confirm');
+    c.style.display = 'block';
+    setTimeout(() => c.style.display = 'none', 2000);
+  });
+}
+
+function nextQuestion() {
+  if (showingEnd) return;
+  answered = false;
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('alt-note').textContent = '';
+  document.getElementById('link-box').style.display = 'none';
+  document.getElementById('copy-confirm').style.display = 'none';
+  const inp = document.getElementById('antwoord');
+  inp.value = ''; inp.className = '';
+
+  const empty = selectedVerbs.size === 0 || selectedTenses.size === 0;
+  document.getElementById('empty-notice').style.display = empty ? 'block' : 'none';
+  document.getElementById('question-body').style.display = empty ? 'none' : 'block';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('round-notice').style.display = empty ? 'none' : 'block';
+  if (empty) { current = null; return; }
+
+  const pool = inMistakeRound ? mistakeQueue : queue;
+  if (pool.length === 0) { showEndScreen(); return; }
+
+  current = pool.shift();
+  updateRoundNotice();
+
+  const { pron, sub } = pronLabels[current.pronIdx];
+  document.getElementById('prompt-text').textContent = `${pron} _____ (${current.verbKey})`;
+  document.getElementById('prompt-sub').textContent = sub;
+  inp.focus();
+}
+
+function norm(s) { return s.trim().toLowerCase().replace(/\s+/g, ' '); }
+
+function checkAnswer() {
+  if (answered || !current) return;
+  answered = true;
+  const { verbKey, tense, pronIdx } = current;
+  const expected = norm(werkwoorden[verbKey][tense][pronIdx]);
+  const input = norm(document.getElementById('antwoord').value);
+
+  const variant = altVariants[verbKey]?.[pronIdx];
+  const allAccepted = variant ? [norm(variant.primary), norm(variant.alt)] : [expected];
+  const ok = allAccepted.includes(input);
+
+  const fb = document.getElementById('feedback');
+  const inp = document.getElementById('antwoord');
+
+  if (ok) {
+    goed++; reeks++;
+    fb.className = 'feedback goed';
+    fb.textContent = reeks >= 5 ? `Goed zo! (${reeks} op rij!)` : 'Goed zo!';
+    inp.classList.add('correct');
+    if (variant) {
+      // Show the *other* form as the alternative note
+      document.getElementById('alt-note').textContent = input === norm(variant.primary)
+        ? variant.note_for_primary
+        : variant.note_for_alt;
+    }
+  } else {
+    fout++; reeks = 0; roundFaults++;
+    fb.className = 'feedback fout';
+    fb.textContent = `Fout — het goede antwoord is: ${expected}`;
+    inp.classList.add('wrong');
+    if (variant) {
+      document.getElementById('alt-note').textContent = variant.note_for_primary;
+    }
+    const already = mistakeQueue.some(m => m.verbKey === verbKey && m.tense === tense && m.pronIdx === pronIdx);
+    if (!already) mistakeQueue.push({ verbKey, tense, pronIdx });
+  }
+
+  document.getElementById('s-goed').textContent = goed;
+  document.getElementById('s-fout').textContent = fout;
+  document.getElementById('s-reeks').textContent = reeks;
+}
+
+document.getElementById('antwoord').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { answered ? nextQuestion() : checkAnswer(); }
+});
+
+readParams();
+buildUI();
+if (selectedVerbs.size > 0) resetQueues();
+nextQuestion();
+</script>
+</body>
+</html>
